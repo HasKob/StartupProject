@@ -1,5 +1,7 @@
 using HotelListing.Configurations;
 using HotelListing.Database;
+using HotelListing.IRepository;
+using HotelListing.Repository;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -24,8 +26,10 @@ builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().WriteTo.File(
     rollingInterval: RollingInterval.Day,
     restrictedToMinimumLevel: LogEventLevel.Information
     ));
-
-builder.Services.AddControllers();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddControllers().AddNewtonsoftJson(op =>
+    op.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 var app = builder.Build();
 
