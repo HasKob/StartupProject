@@ -48,7 +48,7 @@ namespace HotelListing.Services
             var roles = await _userManager.GetRolesAsync(_apiUser);
             foreach (var role in roles)
             {
-                new Claim(ClaimTypes.Role, role);
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
             return claims;
         }
