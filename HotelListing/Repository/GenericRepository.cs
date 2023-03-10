@@ -1,8 +1,12 @@
 ﻿using HotelListing.Database;
+using HotelListing.DTOs;
 using HotelListing.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Linq;
 using System.Linq.Expressions;
+using X.PagedList;
 
 namespace HotelListing.Repository
 {
@@ -26,38 +30,42 @@ namespace HotelListing.Repository
             _db.RemoveRange(entities);
         }
 
-        public async Task<T> Get(Expression<Func<T, bool>> expression = null, List<string> includes = null)
+        public async Task<T> Get(Expression<Func<T, bool>> expression = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
             IQueryable<T> query = _db;
-            if (includes != null)
+            if (include != null)
             {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
+                query = include(query);
             }
             return await query.AsNoTracking().FirstOrDefaultAsync(expression);
         }
 
-        public async Task<IList<T>> GetAll(Expression<Func<T, bool>> expression = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, List<string> includes = null)
+        public async Task<IList<T>> GetAll(Expression<Func<T, bool>> expression = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
             IQueryable<T> query = _db;
             if(expression != null)
             {
                 query = query.Where(expression);
             }
-            if (includes != null)
+            if (include != null)
             {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
+                query = include(query);
             }
             if(orderBy != null)
             {
                 query = orderBy(query);
             }
             return await query.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<IPagedList<T>> GetAllPaged(RequestParams requestParams, Func<IQueryable<T>, IIncludableQueryable<T, object>> include)
+        {
+            IQueryable<T> query = _db;
+            if (include != null)
+            {
+                query = include(query);
+            }
+            return await query.AsNoTracking().ToPagedListAsync(requestParams.PageNumber, requestParams.PageSize);
         }
 
         public async Task Insert(T entity)
