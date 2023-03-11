@@ -1,11 +1,11 @@
 using AspNetCoreRateLimit;
 using HotelListing;
-using HotelListing.Configurations;
+using HotelListing.Core;
+using HotelListing.Core.Configurations;
+using HotelListing.Core.IRepository;
+using HotelListing.Core.Repository;
+using HotelListing.Core.Services;
 using HotelListing.Database;
-using HotelListing.IRepository;
-using HotelListing.Repository;
-using HotelListing.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using Serilog;
@@ -17,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sqlConnection"))
 );
+
+//Rate Limiting Config
 builder.Services.AddMemoryCache();
 builder.Services.ConfigureRateLimiting();
 builder.Services.AddHttpContextAccessor();
@@ -52,9 +54,13 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
+    c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "Hotel Listing API");
+});
 app.ConfigureExceptionHandler();
 app.UseHttpsRedirection();
 

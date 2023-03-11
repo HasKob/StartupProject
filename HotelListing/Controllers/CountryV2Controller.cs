@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using HotelListing.DTOs;
+using HotelListing.Core.DTOs;
 using HotelListing.Enums;
-using HotelListing.IRepository;
+using HotelListing.Core.IRepository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace HotelListing.Controllers
 {
