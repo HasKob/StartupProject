@@ -35,7 +35,7 @@ builder.Services.AddCors(o =>
 });
 builder.Services.AddAutoMapper(typeof(MapperInitializer));
 builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().WriteTo.File(
-    path: "c:\\hotelistings\\logs\\log-.txt",
+    path: "logs\\log-.txt",
     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
     rollingInterval: RollingInterval.Day,
     restrictedToMinimumLevel: LogEventLevel.Information
